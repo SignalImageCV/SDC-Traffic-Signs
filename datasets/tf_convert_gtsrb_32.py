@@ -35,10 +35,11 @@ _TEST_FILENAME = 'test.p'
 
 _IMAGE_SIZE = 32
 _NUM_CHANNELS = 3
+_NUM_CLASSES = 43
 
 # The names of the classes.
 _CLASS_NAMES = [
-    str(i) for i in range(42)
+    str(i) for i in range(_NUM_CLASSES)
 ]
 
 
