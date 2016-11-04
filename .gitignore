@@ -7,3 +7,7 @@ models
 traffic-signs.sublime-project
 traffic-signs.sublime-workspace
 datasets/__pycache__/
+deployment/__pycache__/
+logs/
+nets/__pycache__/
+preprocessing/__pycache__/

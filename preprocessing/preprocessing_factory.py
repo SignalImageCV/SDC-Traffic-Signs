@@ -41,6 +41,7 @@ def get_preprocessing(name, is_training=False):
       ValueError: If Preprocessing `name` is not recognized.
     """
     preprocessing_fn_map = {
+        'cifarnet': gtsrb_32_preprocessing,
         'gtsrbnet': gtsrb_32_preprocessing,
     }
     # preprocessing_fn_map = {

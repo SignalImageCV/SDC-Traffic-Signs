@@ -362,8 +362,7 @@ def main(_):
                 num_readers=FLAGS.num_readers,
                 common_queue_capacity=20 * FLAGS.batch_size,
                 common_queue_min=10 * FLAGS.batch_size,
-                shuffle=True,
-                seed=None)
+                shuffle=True)
             [image, label] = provider.get(['image', 'label'])
             label -= FLAGS.labels_offset
 
@@ -458,7 +457,6 @@ def main(_):
         grad_updates = optimizer.apply_gradients(clones_gradients,
                                                  global_step=global_step)
         update_ops.append(grad_updates)
-
         update_op = tf.group(*update_ops)
         train_tensor = control_flow_ops.with_dependencies([update_op], total_loss,
                                                           name='train_op')
@@ -467,7 +465,6 @@ def main(_):
         # created by model_fn and either optimize_clones() or _gather_clone_loss().
         summaries |= set(tf.get_collection(tf.GraphKeys.SUMMARIES,
                                            first_clone_scope))
-
         # Merge all summaries together.
         summary_op = tf.merge_summary(list(summaries), name='summary_op')
 
@@ -477,7 +474,7 @@ def main(_):
         slim.learning.train(
             train_tensor,
             logdir=FLAGS.train_dir,
-            master=FLAGS.master,
+            master='',
             is_chief=True,
             init_fn=_get_init_fn(),
             summary_op=summary_op,
@@ -485,7 +482,7 @@ def main(_):
             log_every_n_steps=FLAGS.log_every_n_steps,
             save_summaries_secs=FLAGS.save_summaries_secs,
             save_interval_secs=FLAGS.save_interval_secs,
-            sync_optimizer=optimizer if FLAGS.sync_replicas else None)
+            sync_optimizer=None)
 
 
 if __name__ == '__main__':
