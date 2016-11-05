@@ -13,7 +13,22 @@ python train_image_classifier.py \
     --dataset_name=gtsrb_32 \
     --dataset_split_name=train \
     --dataset_dir=${DATASET_DIR} \
+    --save_summaries_secs=60 \
+    --save_interval_secs=60 \
     --model_name=cifarnet \
-    --optimizer=momentum \
-    --learning_rate=0.01 \
-    --batch_size=32
+    --optimizer=rmsprop \
+    --learning_rate=0.05 \
+    --num_epochs_per_decay=10. \
+    --learning_rate_decay_factor=0.995 \
+    --weight_decay=0.00001 \
+    --batch_size=256
+
+DATASET_DIR=../traffic-signs-data/GTSRB_size32
+CHECKPOINT_FILE=logs
+python eval_image_classifier.py \
+    --alsologtostderr \
+    --checkpoint_path=${CHECKPOINT_FILE} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=gtsrb_32 \
+    --dataset_split_name=test \
+    --model_name=cifarnet
