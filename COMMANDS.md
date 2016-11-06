@@ -17,10 +17,10 @@ python train_image_classifier.py \
     --save_interval_secs=60 \
     --model_name=cifarnet \
     --optimizer=rmsprop \
-    --learning_rate=0.05 \
+    --learning_rate=0.02 \
     --num_epochs_per_decay=10. \
     --learning_rate_decay_factor=0.995 \
-    --weight_decay=0.00001 \
+    --weight_decay=0.00005 \
     --batch_size=256
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
