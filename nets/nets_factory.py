@@ -20,14 +20,17 @@ import tensorflow as tf
 
 from nets import cifarnet
 from nets import atrousnet
+from nets import idsianet
 
 slim = tf.contrib.slim
 
 networks_map = {'cifarnet': cifarnet.cifarnet,
+                'idsianet': idsianet.idsianet,
                 'atrousnet': atrousnet.atrousnet,
                 }
 
 arg_scopes_map = {'cifarnet': cifarnet.cifarnet_arg_scope,
+                  'idsianet': idsianet.idsianet_arg_scope,
                   'atrousnet': atrousnet.atrousnet_arg_scope,
                   }
 
