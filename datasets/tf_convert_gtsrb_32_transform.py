@@ -23,6 +23,7 @@ protocol buffers, each of which contain a single image and label.
 import os
 import sys
 import pickle
+import random
 
 import numpy as np
 import tensorflow as tf
@@ -37,6 +38,10 @@ _TEST_FILENAME = 'test.p'
 _IMAGE_SIZE = 32
 _NUM_CHANNELS = 3
 _NUM_CLASSES = 43
+
+# Data generation parameters...
+_MAX_ANGLE = 15.
+_SCALE_RANGE = [0.7, 1.3]
 
 # The names of the classes.
 _CLASS_NAMES = [
@@ -93,9 +98,6 @@ def _add_to_tfrecord(data_filename, tfrecord_writer, augment=False):
       data_filename: The filename of the images and labels.
       tfrecord_writer: The TFRecord writer to use for writing.
     """
-    max_angle = 15.
-    scale_range = [0.7, 1.3]
-
     images, labels = _extract_images_labels(data_filename)
     num_images = images.shape[0]
 
@@ -105,35 +107,58 @@ def _add_to_tfrecord(data_filename, tfrecord_writer, augment=False):
         encoded_png = tf.image.encode_png(image)
 
         with tf.Session('') as sess:
-            if augment:
-                # Data augmentation...
-                for j in range(_NUM_CLASSES):
-                    sys.stdout.write('\r>> Converting and augmenting image class %d/%d' % (j + 1, _NUM_CLASSES))
-                    sys.stdout.flush()
+            # Just copy!
+            for j in range(num_images):
+                sys.stdout.write('\r>> Converting image %d/%d' % (j + 1, num_images))
+                sys.stdout.flush()
 
-                    # Images indexes.
-                    idxes = np.argwhere(labels == j)
+                png_string = sess.run(encoded_png, feed_dict={image: images[j]})
+                example = dataset_utils.image_to_tfexample(
+                    png_string, b'png', _IMAGE_SIZE, _IMAGE_SIZE, int(labels[j]))
+                tfrecord_writer.write(example.SerializeToString())
 
-                    for i in range(gtsrb_32_transform.NUM_ITEM_PER_CLASS):
-                        idx = idxes[i % len(idxes)][0]
-                        img = _random_transform(images[idx], max_angle, scale_range)
-                        label = labels[idx]
 
-                        png_string = sess.run(encoded_png, feed_dict={image: img})
-                        example = dataset_utils.image_to_tfexample(
-                            png_string, b'png', _IMAGE_SIZE, _IMAGE_SIZE, int(label))
-                        tfrecord_writer.write(example.SerializeToString())
+def _add_to_tfrecord_augment(data_filename, tfrecord_writer):
+    """Loads data from the Pickle files and writes files to a TFRecord.
 
-            else:
-                # Just copy!
-                for j in range(num_images):
-                    sys.stdout.write('\r>> Converting image %d/%d' % (j + 1, num_images))
-                    sys.stdout.flush()
+    Args:
+      data_filename: The filename of the images and labels.
+      tfrecord_writer: The TFRecord writer to use for writing.
+    """
+    images, labels = _extract_images_labels(data_filename)
+    num_images = images.shape[0]
 
-                    png_string = sess.run(encoded_png, feed_dict={image: images[j]})
+    # Compute class indexes.
+    class_idxes = []
+    for j in range(_NUM_CLASSES):
+        class_idxes.append(np.argwhere(labels == j))
+        random.shuffle(class_idxes[j])
+    fill_classes = [0] * _NUM_CLASSES
+    fill_all_classes = gtsrb_32_transform.NUM_ITEM_PER_CLASS * _NUM_CLASSES
+
+    shape = (_IMAGE_SIZE, _IMAGE_SIZE, _NUM_CHANNELS)
+    with tf.Graph().as_default():
+        image = tf.placeholder(dtype=tf.uint8, shape=shape)
+        encoded_png = tf.image.encode_png(image)
+
+        with tf.Session('') as sess:
+            # Data augmentation...
+            while fill_all_classes > 0:
+                sys.stdout.write('\r>> Converting and augmenting images... Countdown: %d!' % (fill_all_classes))
+
+                i = np.random.randint(_NUM_CLASSES)
+                if fill_classes[i] < gtsrb_32_transform.NUM_ITEM_PER_CLASS:
+                    idx = class_idxes[i][fill_classes[i] % len(class_idxes[i])][0]
+                    img = _random_transform(images[idx], _MAX_ANGLE, _SCALE_RANGE)
+                    label = labels[idx]
+
+                    png_string = sess.run(encoded_png, feed_dict={image: img})
                     example = dataset_utils.image_to_tfexample(
-                        png_string, b'png', _IMAGE_SIZE, _IMAGE_SIZE, int(labels[j]))
+                        png_string, b'png', _IMAGE_SIZE, _IMAGE_SIZE, int(label))
                     tfrecord_writer.write(example.SerializeToString())
+
+                    fill_classes[i] += 1
+                    fill_all_classes -= 1
 
 
 def _get_output_filename(dataset_dir, split_name):
@@ -159,12 +184,12 @@ def run(dataset_dir):
     # First, process the training data:
     with tf.python_io.TFRecordWriter(training_filename) as tfrecord_writer:
         data_filename = os.path.join(dataset_dir, _TRAIN_FILENAME)
-        _add_to_tfrecord(data_filename, tfrecord_writer, augment=True)
+        _add_to_tfrecord_augment(data_filename, tfrecord_writer)
 
     # Next, process the testing data:
     with tf.python_io.TFRecordWriter(testing_filename) as tfrecord_writer:
         data_filename = os.path.join(dataset_dir, _TEST_FILENAME)
-        _add_to_tfrecord(data_filename, tfrecord_writer, augment=False)
+        _add_to_tfrecord(data_filename, tfrecord_writer)
 
     # Finally, write the labels file:
     labels_to_class_names = dict(zip(range(len(_CLASS_NAMES)), _CLASS_NAMES))
