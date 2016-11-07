@@ -54,14 +54,14 @@ python train_image_classifier.py \
     --save_interval_secs=60 \
     --model_name=atrousnet \
     --optimizer=rmsprop \
-    --learning_rate=0.001 \
-    --num_epochs_per_decay=10. \
-    --learning_rate_decay_factor=0.99 \
+    --learning_rate=0.01 \
+    --num_epochs_per_decay=1. \
+    --learning_rate_decay_factor=0.9 \
     --weight_decay=0.00005 \
-    --batch_size=256
+    --batch_size=1024
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
-CHECKPOINT_FILE=logs
+CHECKPOINT_FILE=logs/atrousnet_log2
 python eval_image_classifier.py \
     --alsologtostderr \
     --checkpoint_path=${CHECKPOINT_FILE} \
