@@ -51,15 +51,15 @@ python train_image_classifier.py \
     --save_summaries_secs=60 \
     --save_interval_secs=60 \
     --model_name=idsianet \
-    --optimizer=adam \
+    --optimizer=rmsprop \
     --learning_rate=0.01 \
     --rmsprop_momentum=0.9 \
     --rmsprop_decay=0.9 \
-    --opt_epsilon=0.001 \
+    --opt_epsilon=1. \
     --num_epochs_per_decay=10. \
     --learning_rate_decay_factor=0.99 \
     --weight_decay=0.0005 \
-    --batch_size=256
+    --batch_size=32
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
 CHECKPOINT_FILE=logs/
