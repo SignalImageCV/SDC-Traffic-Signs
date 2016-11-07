@@ -42,7 +42,7 @@ def get_preprocessing(name, is_training=False):
     """
     preprocessing_fn_map = {
         'cifarnet': gtsrb_32_preprocessing,
-        'gtsrbnet': gtsrb_32_preprocessing,
+        'atrousnet': gtsrb_32_preprocessing,
     }
     # preprocessing_fn_map = {
     #   'cifarnet': cifarnet_preprocessing,

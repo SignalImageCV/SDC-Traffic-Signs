@@ -19,13 +19,16 @@ import functools
 import tensorflow as tf
 
 from nets import cifarnet
+from nets import atrousnet
 
 slim = tf.contrib.slim
 
 networks_map = {'cifarnet': cifarnet.cifarnet,
+                'atrousnet': atrousnet.atrousnet,
                 }
 
 arg_scopes_map = {'cifarnet': cifarnet.cifarnet_arg_scope,
+                  'atrousnet': atrousnet.atrousnet_arg_scope,
                   }
 
 

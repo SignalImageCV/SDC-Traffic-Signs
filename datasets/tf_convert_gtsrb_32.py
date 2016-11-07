@@ -58,7 +58,7 @@ def _extract_images_labels(filename):
     return images.astype(np.uint8), labels.astype(np.int64)
 
 
-def _add_to_tfrecord(data_filename, tfrecord_writer):
+def _add_to_tfrecord(data_filename, tfrecord_writer, norm_classes=False):
     """Loads data from the Pickle files and writes files to a TFRecord.
 
     Args:
@@ -68,19 +68,26 @@ def _add_to_tfrecord(data_filename, tfrecord_writer):
     images, labels = _extract_images_labels(data_filename)
     num_images = images.shape[0]
 
+    # Maximum number of images per class
+    nb_max_images = 0
+    for i in range(_NUM_CLASSES):
+        nb_max_images = max(nb_max_images, np.sum(labels == i))
+    print(nb_max_images)
+
     shape = (_IMAGE_SIZE, _IMAGE_SIZE, _NUM_CHANNELS)
     with tf.Graph().as_default():
         image = tf.placeholder(dtype=tf.uint8, shape=shape)
         encoded_png = tf.image.encode_png(image)
 
         with tf.Session('') as sess:
-            for j in range(num_images):
+            loop_size = nb_max_images if norm_classes else num_images
+            for j in range(loop_size):
                 sys.stdout.write('\r>> Converting image %d/%d' % (j + 1, num_images))
                 sys.stdout.flush()
 
-                png_string = sess.run(encoded_png, feed_dict={image: images[j]})
+                png_string = sess.run(encoded_png, feed_dict={image: images[j % num_images]})
                 example = dataset_utils.image_to_tfexample(
-                    png_string, b'png', _IMAGE_SIZE, _IMAGE_SIZE, int(labels[j]))
+                    png_string, b'png', _IMAGE_SIZE, _IMAGE_SIZE, int(labels[j % num_images]))
                 tfrecord_writer.write(example.SerializeToString())
 
 
@@ -106,12 +113,12 @@ def run(dataset_dir):
     # First, process the training data:
     with tf.python_io.TFRecordWriter(training_filename) as tfrecord_writer:
         data_filename = os.path.join(dataset_dir, _TRAIN_FILENAME)
-        _add_to_tfrecord(data_filename, tfrecord_writer)
+        _add_to_tfrecord(data_filename, tfrecord_writer, norm_classes=False)
 
     # Next, process the testing data:
     with tf.python_io.TFRecordWriter(testing_filename) as tfrecord_writer:
         data_filename = os.path.join(dataset_dir, _TEST_FILENAME)
-        _add_to_tfrecord(data_filename, tfrecord_writer)
+        _add_to_tfrecord(data_filename, tfrecord_writer, norm_classes=False)
 
     # Finally, write the labels file:
     labels_to_class_names = dict(zip(range(len(_CLASS_NAMES)), _CLASS_NAMES))
