@@ -93,8 +93,8 @@ def _add_to_tfrecord(data_filename, tfrecord_writer, augment=False):
       data_filename: The filename of the images and labels.
       tfrecord_writer: The TFRecord writer to use for writing.
     """
-    max_angle = 10.
-    scale_range = [0.8, 1.2]
+    max_angle = 15.
+    scale_range = [0.7, 1.3]
 
     images, labels = _extract_images_labels(data_filename)
     num_images = images.shape[0]

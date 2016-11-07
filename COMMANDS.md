@@ -5,6 +5,9 @@ python tf_convert_data.py \
     --dataset_name=gtsrb_32 \
     --dataset_dir="${DATASET_DIR}"
 
+rm events* graph* model* checkpoint
+mv events* graph* model* checkpoint ./idsianet_log6
+
 # ===========================================================================
 # CifarNet
 # ===========================================================================
@@ -58,8 +61,8 @@ python train_image_classifier.py \
     --opt_epsilon=1. \
     --num_epochs_per_decay=10. \
     --learning_rate_decay_factor=0.99 \
-    --weight_decay=0.0005 \
-    --batch_size=32
+    --weight_decay=0.00005 \
+    --batch_size=64
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
 CHECKPOINT_FILE=logs/
