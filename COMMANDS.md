@@ -37,6 +37,39 @@ python eval_image_classifier.py \
     --dataset_split_name=test \
     --model_name=cifarnet
 
+# ===========================================================================
+# IdsiaNet
+# ===========================================================================
+DATASET_DIR=../traffic-signs-data/GTSRB_size32
+TRAIN_DIR=logs/
+CHECKPOINT_PATH=logs/
+python train_image_classifier.py \
+    --train_dir=${TRAIN_DIR} \
+    --dataset_name=gtsrb_32 \
+    --dataset_split_name=train \
+    --dataset_dir=${DATASET_DIR} \
+    --save_summaries_secs=60 \
+    --save_interval_secs=60 \
+    --model_name=idsianet \
+    --optimizer=adam \
+    --learning_rate=0.01 \
+    --rmsprop_momentum=0.9 \
+    --rmsprop_decay=0.9 \
+    --opt_epsilon=0.001 \
+    --num_epochs_per_decay=10. \
+    --learning_rate_decay_factor=0.99 \
+    --weight_decay=0.0005 \
+    --batch_size=256
+
+DATASET_DIR=../traffic-signs-data/GTSRB_size32
+CHECKPOINT_FILE=logs/
+python eval_image_classifier.py \
+    --alsologtostderr \
+    --checkpoint_path=${CHECKPOINT_FILE} \
+    --dataset_dir=${DATASET_DIR} \
+    --dataset_name=gtsrb_32 \
+    --dataset_split_name=test \
+    --model_name=idsianet
 
 # ===========================================================================
 # AtrousNet
@@ -46,7 +79,7 @@ TRAIN_DIR=logs/
 CHECKPOINT_PATH=logs/atrousnet_log2/model.ckpt-372595
 python train_image_classifier.py \
     --train_dir=${TRAIN_DIR} \
-    --dataset_name=gtsrb_32_transform \
+    --dataset_name=gtsrb_32 \
     --dataset_split_name=train \
     --dataset_dir=${DATASET_DIR} \
     --checkpoint_path=${CHECKPOINT_PATH} \
@@ -54,11 +87,14 @@ python train_image_classifier.py \
     --save_interval_secs=60 \
     --model_name=atrousnet \
     --optimizer=rmsprop \
+    --rmsprop_momentum=0.9 \
+    --rmsprop_decay=0.9 \
+    --opt_epsilon=0.000001 \
     --learning_rate=0.01 \
     --num_epochs_per_decay=1. \
     --learning_rate_decay_factor=0.9 \
     --weight_decay=0.00005 \
-    --batch_size=1024
+    --batch_size=256
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
 CHECKPOINT_FILE=logs/atrousnet_log2

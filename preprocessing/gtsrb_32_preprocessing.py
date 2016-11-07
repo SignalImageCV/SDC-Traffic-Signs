@@ -49,7 +49,9 @@ def preprocess_for_train(image,
     # Transform the image to floats.
     image = tf.to_float(image)
     if padding > 0:
-        image = tf.pad(image, [[padding, padding], [padding, padding], [0, 0]])
+        image = tf.pad(image,
+                       [[padding, padding], [padding, padding], [0, 0]],
+                       mode='REFLECT')
     # Randomly crop a [height, width] section of the image.
     distorted_image = tf.random_crop(image,
                                      [output_height, output_width, 3])

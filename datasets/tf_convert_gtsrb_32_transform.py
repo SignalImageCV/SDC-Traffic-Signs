@@ -55,7 +55,9 @@ def _random_transform(img, max_angle, scale_range):
     # Rotation and scaling. Note: reverse axis on OpenCV
     angle = np.random.uniform(low=-max_angle, high=max_angle)
     rot_matrix = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1.)
-    img = cv2.warpAffine(img, rot_matrix, (cols, rows))
+    img = cv2.warpAffine(img, rot_matrix, (cols, rows),
+                         flags=cv2.INTER_LINEAR,
+                         borderMode=cv2.BORDER_REFLECT_101)
 
     # Scaling matrix: keep image centered after scaled.
     scale_x = np.random.uniform(low=scale_range[0], high=scale_range[1])
@@ -63,7 +65,9 @@ def _random_transform(img, max_angle, scale_range):
     scale_matrix = np.array([[scale_x, 0., (1. - scale_x) * cols / 2.],
                              [0., scale_y, (1. - scale_y) * rows / 2.]],
                             dtype=np.float32)
-    img = cv2.warpAffine(img, scale_matrix, (cols, rows))
+    img = cv2.warpAffine(img, scale_matrix, (cols, rows),
+                         flags=cv2.INTER_LINEAR,
+                         borderMode=cv2.BORDER_REFLECT_101)
     return img
 
 
