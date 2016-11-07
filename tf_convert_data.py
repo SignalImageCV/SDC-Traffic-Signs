@@ -24,6 +24,7 @@ $ python tf_convert_data.py \
 import tensorflow as tf
 
 from datasets import tf_convert_gtsrb_32
+from datasets import tf_convert_gtsrb_32_transform
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -46,6 +47,8 @@ def main(_):
         raise ValueError('Not implemented yet!')
     elif FLAGS.dataset_name == 'gtsrb_32':
         tf_convert_gtsrb_32.run(FLAGS.dataset_dir)
+    elif FLAGS.dataset_name == 'gtsrb_32_transform':
+        tf_convert_gtsrb_32_transform.run(FLAGS.dataset_dir)
     else:
         raise ValueError('dataset_name [%s] was not recognized.' % FLAGS.dataset_dir)
 
