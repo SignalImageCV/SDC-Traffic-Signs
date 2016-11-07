@@ -39,21 +39,22 @@ python eval_image_classifier.py \
 
 
 # ===========================================================================
-# CifarNet
+# AtrousNet
 # ===========================================================================
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
 TRAIN_DIR=logs/
-CHECKPOINT_PATH=logs/
+CHECKPOINT_PATH=logs/atrousnet_log2/model.ckpt-372595
 python train_image_classifier.py \
     --train_dir=${TRAIN_DIR} \
-    --dataset_name=gtsrb_32 \
+    --dataset_name=gtsrb_32_transform \
     --dataset_split_name=train \
     --dataset_dir=${DATASET_DIR} \
+    --checkpoint_path=${CHECKPOINT_PATH} \
     --save_summaries_secs=60 \
     --save_interval_secs=60 \
     --model_name=atrousnet \
     --optimizer=rmsprop \
-    --learning_rate=0.005 \
+    --learning_rate=0.001 \
     --num_epochs_per_decay=10. \
     --learning_rate_decay_factor=0.99 \
     --weight_decay=0.00005 \
