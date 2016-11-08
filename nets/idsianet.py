@@ -92,6 +92,7 @@ def idsianet_arg_scope(weight_decay=0.004):
     with slim.arg_scope(
             [slim.conv2d],
             weights_initializer=tf.truncated_normal_initializer(stddev=5e-2),
+            weights_regularizer=slim.l2_regularizer(weight_decay),
             activation_fn=tf.nn.relu):
         with slim.arg_scope(
                 [slim.fully_connected],
