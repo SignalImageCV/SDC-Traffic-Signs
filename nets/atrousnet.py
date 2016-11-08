@@ -50,24 +50,28 @@ def atrousnet(images, num_classes=43, is_training=False,
 
     with tf.variable_scope(scope, 'AtrousNet', [images, num_classes]):
 
-        net = slim.conv2d(images, 64, [3, 3], scope='conv1',
-                          padding='VALID', weights_regularizer=None)
+        net = slim.conv2d(images, 64, [3, 3], padding='VALID',
+                          weights_regularizer=None,
+                          scope='conv1')
         end_points['conv1'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
 
-        net = slim.conv2d(net, 128, [3, 3], rate=2, scope='conv2',
-                          padding='VALID', weights_regularizer=None)
+        net = slim.conv2d(net, 128, [3, 3], rate=2, padding='VALID',
+                          weights_regularizer=None,
+                          scope='conv2')
         end_points['conv2'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
 
-        net = slim.conv2d(net, 192, [3, 3], rate=4, scope='conv3',
-                          padding='VALID', weights_regularizer=None)
+        net = slim.conv2d(net, 192, [3, 3], rate=4, padding='VALID',
+                          weights_regularizer=None,
+                          scope='conv3')
         end_points['conv3'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
 
         net = slim.conv2d(net, 256, [1, 1], scope='conv4')
         end_points['conv4'] = net
-        net = slim.dropout(net, dropout_keep_prob, is_training=is_training,
+        net = slim.dropout(net, dropout_keep_prob,
+                           is_training=is_training,
                            scope='dropout1')
         net = slim.conv2d(net, num_classes, [1, 1],
                           biases_initializer=tf.zeros_initializer,
@@ -97,9 +101,9 @@ def atrousnet_arg_scope(weight_decay=0.004):
     """
     with slim.arg_scope(
             [slim.conv2d],
-            weights_initializer=tf.truncated_normal_initializer(stddev=5e-2),
-            # weights_regularizer=slim.l2_regularizer(weight_decay),
-            weights_regularizer=None,
+            weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),
+            weights_regularizer=slim.l2_regularizer(weight_decay),
+            # weights_regularizer=None,
             activation_fn=tf.nn.relu):
         with slim.arg_scope(
                 [slim.fully_connected],
