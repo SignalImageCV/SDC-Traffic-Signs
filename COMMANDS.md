@@ -82,7 +82,7 @@ TRAIN_DIR=logs/
 CHECKPOINT_PATH=logs/atrousnet_log2/model.ckpt-372595
 python train_image_classifier.py \
     --train_dir=${TRAIN_DIR} \
-    --dataset_name=gtsrb_32 \
+    --dataset_name=gtsrb_32_transform \
     --dataset_split_name=train \
     --dataset_dir=${DATASET_DIR} \
     --save_summaries_secs=60 \
@@ -92,11 +92,11 @@ python train_image_classifier.py \
     --rmsprop_momentum=0.9 \
     --rmsprop_decay=0.9 \
     --opt_epsilon=1.0 \
-    --learning_rate=0.01 \
-    --num_epochs_per_decay=2. \
-    --learning_rate_decay_factor=0.95 \
+    --learning_rate=0.04 \
+    --num_epochs_per_decay=1. \
+    --learning_rate_decay_factor=0.9 \
     --weight_decay=0.00005 \
-    --batch_size=128
+    --batch_size=256
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
 CHECKPOINT_FILE=logs

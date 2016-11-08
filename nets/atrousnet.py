@@ -74,8 +74,8 @@ def atrousnet(images, num_classes=43, is_training=False,
         end_points['conv4'] = net
         net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
 
-        net = slim.conv2d(net, 512, [1, 1], scope='conv4')
-        end_points['conv4'] = net
+        net = slim.conv2d(net, 512, [1, 1], scope='conv5')
+        end_points['conv5'] = net
         net = slim.dropout(net, dropout_keep_prob,
                            is_training=is_training,
                            scope='dropout1')
@@ -84,7 +84,7 @@ def atrousnet(images, num_classes=43, is_training=False,
                           weights_initializer=trunc_normal(1 / 512.0),
                           weights_regularizer=None,
                           activation_fn=None,
-                          scope='conv5')
+                          scope='conv6')
 
         net = slim.avg_pool2d(net, [18, 18], scope='avg_pool', padding='VALID')
         logits = tf.squeeze(net)
