@@ -55,12 +55,12 @@ python train_image_classifier.py \
     --save_interval_secs=60 \
     --model_name=idsianet \
     --optimizer=rmsprop \
-    --learning_rate=0.01 \
+    --learning_rate=0.02 \
     --rmsprop_momentum=0.9 \
     --rmsprop_decay=0.9 \
     --opt_epsilon=1. \
     --num_epochs_per_decay=1. \
-    --learning_rate_decay_factor=0.95 \
+    --learning_rate_decay_factor=0.8 \
     --weight_decay=0.00001 \
     --batch_size=256
 
