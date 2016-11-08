@@ -62,20 +62,26 @@ def atrousnet(images, num_classes=43, is_training=False,
         end_points['conv2'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
 
-        net = slim.conv2d(net, 192, [3, 3], rate=4, padding='VALID',
+        net = slim.conv2d(net, 192, [3, 3], rate=3, padding='VALID',
                           weights_regularizer=None,
                           scope='conv3')
         end_points['conv3'] = net
-        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
+        net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
 
-        net = slim.conv2d(net, 256, [1, 1], scope='conv4')
+        net = slim.conv2d(net, 256, [3, 3], rate=4, padding='VALID',
+                          weights_regularizer=None,
+                          scope='conv4')
+        end_points['conv4'] = net
+        net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
+
+        net = slim.conv2d(net, 512, [1, 1], scope='conv4')
         end_points['conv4'] = net
         net = slim.dropout(net, dropout_keep_prob,
                            is_training=is_training,
                            scope='dropout1')
         net = slim.conv2d(net, num_classes, [1, 1],
                           biases_initializer=tf.zeros_initializer,
-                          weights_initializer=trunc_normal(1/256.0),
+                          weights_initializer=trunc_normal(1 / 512.0),
                           weights_regularizer=None,
                           activation_fn=None,
                           scope='conv5')
