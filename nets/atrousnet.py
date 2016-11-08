@@ -85,9 +85,10 @@ def atrousnet(images, num_classes=43, is_training=False,
                           weights_regularizer=None,
                           activation_fn=None,
                           scope='conv6')
+        end_points['conv6'] = net
 
-        net = slim.avg_pool2d(net, [18, 18], scope='avg_pool', padding='VALID')
-        logits = tf.squeeze(net)
+        # Global average pooling.
+        logits = tf.reduce_mean(net, [1, 2], name='pool7')
 
         end_points['Logits'] = logits
         end_points['Predictions'] = prediction_fn(logits, scope='Predictions')
