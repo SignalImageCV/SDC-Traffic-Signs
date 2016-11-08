@@ -24,7 +24,7 @@ slim = tf.contrib.slim
 FILE_PATTERN = 'gtsrb_32_transform_%s.tfrecord'
 
 NUM_CLASSES = 43
-NUM_ITEM_PER_CLASS = 20000
+NUM_ITEM_PER_CLASS = 50000
 SPLITS_TO_SIZES = {'train': NUM_CLASSES * NUM_ITEM_PER_CLASS, 'test': 12630}
 
 ITEMS_TO_DESCRIPTIONS = {

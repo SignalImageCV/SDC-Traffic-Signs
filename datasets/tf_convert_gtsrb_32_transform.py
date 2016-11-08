@@ -40,8 +40,8 @@ _NUM_CHANNELS = 3
 _NUM_CLASSES = 43
 
 # Data generation parameters...
-_MAX_ANGLE = 15.
-_SCALE_RANGE = [0.7, 1.3]
+_MAX_ANGLE = 20.
+_SCALE_RANGE = [0.6, 1.4]
 
 # The names of the classes.
 _CLASS_NAMES = [
