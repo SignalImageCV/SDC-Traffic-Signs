@@ -77,9 +77,9 @@ def atrousnet(images, num_classes=43, is_training=False,
         net = slim.conv2d(net, 512, [1, 1], scope='conv5',
                           normalizer_fn=None)
         end_points['conv5'] = net
-        net = slim.dropout(net, dropout_keep_prob,
-                           is_training=is_training,
-                           scope='dropout1')
+        # net = slim.dropout(net, dropout_keep_prob,
+        #                    is_training=is_training,
+        #                    scope='dropout1')
         net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
                           weights_initializer=trunc_normal(1 / 512.0),
