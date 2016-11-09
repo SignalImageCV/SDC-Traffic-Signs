@@ -153,6 +153,8 @@ def atrousnet_valid(images, num_classes=43, is_training=False,
                           activation_fn=None,
                           scope='conv6')
         end_points['conv6'] = net
+        end_points['PredictionsFull'] = tf.nn.softmax(net)
+
         # Global average pooling.
         logits = tf.reduce_mean(net, [1, 2], name='pool7')
 
