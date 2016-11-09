@@ -46,13 +46,16 @@ def preprocess_for_train(image,
     """
     tf.image_summary('image', tf.expand_dims(image, 0))
 
-    # Transform the image to floats.
-    image = tf.to_float(image)
+    # Transform the image to float if necessary (and rescale to 0-1)
+    if image.dtype != tf.float32:
+        image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+    # image = tf.to_float(image)
+
+    # Randomly crop a [height, width] section of the image.
     if padding > 0:
         image = tf.pad(image,
                        [[padding, padding], [padding, padding], [0, 0]],
                        mode='REFLECT')
-    # Randomly crop a [height, width] section of the image.
     distorted_image = tf.random_crop(image,
                                      [output_height, output_width, 3])
 
@@ -66,7 +69,10 @@ def preprocess_for_train(image,
                                                lower=0.2, upper=1.8)
 
     tf.image_summary('distorted_image', tf.expand_dims(distorted_image, 0))
-    # Subtract off the mean and divide by the variance of the pixels.
+
+    # Translate to [-1, 1] interval.
+    # distorted_image = tf.sub(distorted_image, 0.5)
+    # distorted_image = tf.mul(distorted_image, 2.0)
     return tf.image.per_image_whitening(distorted_image)
 
 
@@ -82,15 +88,20 @@ def preprocess_for_eval(image, output_height, output_width):
       A preprocessed image.
     """
     tf.image_summary('image', tf.expand_dims(image, 0))
-    # Transform the image to floats.
+    # Transform the image to float if necessary (and rescale to 0-1)
+    # if image.dtype != tf.float32:
+    #     image = tf.image.convert_image_dtype(image, dtype=tf.float32)
     image = tf.to_float(image)
 
     # Resize and crop if needed.
     resized_image = tf.image.resize_image_with_crop_or_pad(image,
-                                                           output_width,
-                                                           output_height)
+                                                           output_height,
+                                                           output_width)
     tf.image_summary('resized_image', tf.expand_dims(resized_image, 0))
-    # Subtract off the mean and divide by the variance of the pixels.
+
+    # Translate to [-1, 1] interval.
+    # resized_image = tf.sub(resized_image, 0.5)
+    # resized_image = tf.mul(resized_image, 2.0)
     return tf.image.per_image_whitening(resized_image)
 
 
