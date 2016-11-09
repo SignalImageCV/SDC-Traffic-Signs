@@ -50,36 +50,36 @@ def atrousnet(images, num_classes=43, is_training=False,
 
     with tf.variable_scope(scope, 'AtrousNet', [images, num_classes]):
 
-        net = slim.conv2d(images, 64, [3, 3], padding='VALID',
+        net = slim.conv2d(images, 64, [3, 3], padding='SAME',
                           weights_regularizer=None,
                           scope='conv1')
         end_points['conv1'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
 
-        net = slim.conv2d(net, 128, [3, 3], rate=2, padding='VALID',
+        net = slim.conv2d(net, 128, [3, 3], rate=2, padding='SAME',
                           weights_regularizer=None,
                           scope='conv2')
         end_points['conv2'] = net
-        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
+        net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
 
-        net = slim.conv2d(net, 192, [3, 3], rate=3, padding='VALID',
+        net = slim.conv2d(net, 192, [3, 3], rate=3, padding='SAME',
                           weights_regularizer=None,
                           scope='conv3')
         end_points['conv3'] = net
-        net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
+        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
 
-        net = slim.conv2d(net, 256, [3, 3], rate=4, padding='VALID',
+        net = slim.conv2d(net, 256, [3, 3], rate=4, padding='SAME',
                           weights_regularizer=None,
                           scope='conv4')
         end_points['conv4'] = net
-        net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
+        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
 
         net = slim.conv2d(net, 512, [1, 1], scope='conv5')
         end_points['conv5'] = net
         net = slim.dropout(net, dropout_keep_prob,
                            is_training=is_training,
                            scope='dropout1')
-        net = slim.conv2d(net, num_classes, [1, 1],
+        net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
                           weights_initializer=trunc_normal(1 / 512.0),
                           weights_regularizer=None,
@@ -97,6 +97,69 @@ def atrousnet(images, num_classes=43, is_training=False,
 atrousnet.default_image_size = 32
 
 
+def atrousnet_valid(images, num_classes=43, is_training=False,
+                    dropout_keep_prob=0.5,
+                    prediction_fn=slim.softmax,
+                    scope='CifarNet'):
+    """Creates a model using Dilated-Atrous convolutions.
+
+    Args:
+        images: A batch of `Tensors` of size [batch_size, height, width, channels].
+        num_classes: the number of classes in the dataset.
+        is_training: specifies whether or not we're currently training the model.
+            This variable will determine the behaviour of the dropout layer.
+        dropout_keep_prob: the percentage of activation values that are retained.
+        prediction_fn: a function to get predictions out of logits.
+        scope: Optional variable_scope.
+
+    Returns:
+        logits: the pre-softmax activations, a tensor of size
+            [batch_size, `num_classes`]
+        end_points: a dictionary from components of the network to the corresponding
+            activation.
+        """
+    end_points = {}
+
+    with tf.variable_scope(scope, 'AtrousNet', [images, num_classes]):
+
+        net = slim.conv2d(images, 64, [3, 3], padding='SAME',
+                          weights_regularizer=None, scope='conv1')
+        end_points['conv1'] = net
+        net = slim.conv2d(net, 128, [3, 3], rate=2, padding='SAME',
+                          weights_regularizer=None, scope='conv2')
+        end_points['conv2'] = net
+        net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
+
+        net = slim.conv2d(net, 192, [3, 3], rate=3, padding='SAME',
+                          weights_regularizer=None, scope='conv3')
+        end_points['conv3'] = net
+        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
+
+        net = slim.conv2d(net, 256, [3, 3], rate=4, padding='SAME',
+                          weights_regularizer=None, scope='conv4')
+        end_points['conv4'] = net
+        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
+
+        net = slim.conv2d(net, 512, [1, 1], scope='conv5')
+        end_points['conv5'] = net
+        net = slim.dropout(net, dropout_keep_prob,
+                           is_training=is_training,
+                           scope='dropout1')
+        net = slim.conv2d(net, num_classes+1, [1, 1],
+                          biases_initializer=tf.zeros_initializer,
+                          weights_initializer=trunc_normal(1 / 512.0),
+                          weights_regularizer=None,
+                          activation_fn=None,
+                          scope='conv6')
+        end_points['conv6'] = net
+        # Global average pooling.
+        logits = tf.reduce_mean(net, [1, 2], name='pool7')
+
+        end_points['Logits'] = logits
+        end_points['Predictions'] = prediction_fn(logits, scope='Predictions')
+    return logits, end_points
+
+
 def atrousnet_arg_scope(weight_decay=0.004):
     """Defines the default cifarnet argument scope.
 
@@ -106,6 +169,14 @@ def atrousnet_arg_scope(weight_decay=0.004):
     Returns:
         An `arg_scope` to use for the inception v3 model.
     """
+    batch_norm_params = {
+        # Decay for the moving averages.
+        'decay': 0.9997,
+        # epsilon to prevent 0s in variance.
+        'epsilon': 0.001,
+        # collection containing update_ops.
+        'updates_collections': tf.GraphKeys.UPDATE_OPS,
+    }
     with slim.arg_scope(
             [slim.conv2d],
             weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),

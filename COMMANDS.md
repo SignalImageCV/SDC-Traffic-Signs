@@ -87,6 +87,7 @@ python train_image_classifier.py \
     --dataset_dir=${DATASET_DIR} \
     --save_summaries_secs=60 \
     --save_interval_secs=60 \
+    --labels_offset=1 \
     --model_name=atrousnet \
     --optimizer=rmsprop \
     --rmsprop_momentum=0.9 \
