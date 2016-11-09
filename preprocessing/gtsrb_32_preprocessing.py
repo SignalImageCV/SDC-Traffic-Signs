@@ -107,6 +107,8 @@ def preprocess_image(image, output_height, output_width, is_training=False):
     Returns:
       A preprocessed image.
     """
+    # print(image.dtype)
+
     if is_training:
         return preprocess_for_train(image, output_height, output_width)
     else:
