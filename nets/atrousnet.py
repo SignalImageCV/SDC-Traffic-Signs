@@ -25,10 +25,10 @@ slim = tf.contrib.slim
 trunc_normal = lambda stddev: tf.truncated_normal_initializer(stddev=stddev)
 
 
-def atrousnet(images, num_classes=43, is_training=False,
-              dropout_keep_prob=0.5,
-              prediction_fn=slim.softmax,
-              scope='CifarNet'):
+def atrousnet_same(images, num_classes=43, is_training=False,
+                   dropout_keep_prob=0.5,
+                   prediction_fn=slim.softmax,
+                   scope='AtrousNetSame'):
     """Creates a model using Dilated-Atrous convolutions.
 
     Args:
@@ -77,9 +77,9 @@ def atrousnet(images, num_classes=43, is_training=False,
         net = slim.conv2d(net, 512, [1, 1], scope='conv5',
                           normalizer_fn=None)
         end_points['conv5'] = net
-        net = slim.dropout(net, dropout_keep_prob,
-                           is_training=is_training,
-                           scope='dropout1')
+        # net = slim.dropout(net, dropout_keep_prob,
+        #                    is_training=is_training,
+        #                    scope='dropout1')
         net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
                           weights_initializer=trunc_normal(1 / 512.0),
@@ -94,9 +94,8 @@ def atrousnet(images, num_classes=43, is_training=False,
 
         end_points['Logits'] = logits
         end_points['Predictions'] = prediction_fn(logits, scope='Predictions')
-
     return logits, end_points
-atrousnet.default_image_size = 32
+atrousnet_same.default_image_size = 32
 
 
 def atrousnet_valid(images, num_classes=43, is_training=False,
@@ -124,20 +123,20 @@ def atrousnet_valid(images, num_classes=43, is_training=False,
 
     with tf.variable_scope(scope, 'AtrousNet', [images, num_classes]):
 
-        net = slim.conv2d(images, 64, [3, 3], padding='SAME',
+        net = slim.conv2d(images, 64, [3, 3], padding='VALID',
                           weights_regularizer=None, scope='conv1')
         end_points['conv1'] = net
-        net = slim.conv2d(net, 128, [3, 3], rate=2, padding='SAME',
+        net = slim.conv2d(net, 128, [3, 3], rate=2, padding='VALID',
                           weights_regularizer=None, scope='conv2')
         end_points['conv2'] = net
         net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
 
-        net = slim.conv2d(net, 192, [3, 3], rate=3, padding='SAME',
+        net = slim.conv2d(net, 192, [3, 3], rate=3, padding='VALID',
                           weights_regularizer=None, scope='conv3')
         end_points['conv3'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
 
-        net = slim.conv2d(net, 256, [3, 3], rate=4, padding='SAME',
+        net = slim.conv2d(net, 256, [3, 3], rate=4, padding='VALID',
                           weights_regularizer=None, scope='conv4')
         end_points['conv4'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
@@ -160,14 +159,14 @@ def atrousnet_valid(images, num_classes=43, is_training=False,
         end_points['Logits'] = logits
         end_points['Predictions'] = prediction_fn(logits, scope='Predictions')
     return logits, end_points
+atrousnet_valid.default_image_size = 32
 
 
-def atrousnet_arg_scope(weight_decay=0.004):
-    """Defines the default cifarnet argument scope.
+def atrousnet_same_arg_scope(weight_decay=0.004):
+    """Defines the default argument scope.
 
     Args:
         weight_decay: The weight decay to use for regularizing the model.
-
     Returns:
         An `arg_scope` to use for the inception v3 model.
     """
@@ -186,6 +185,29 @@ def atrousnet_arg_scope(weight_decay=0.004):
             # weights_regularizer=None,
             normalizer_fn=slim.batch_norm,
             normalizer_params=batch_norm_params,
+            activation_fn=tf.nn.relu):
+        with slim.arg_scope(
+                [slim.fully_connected],
+                biases_initializer=tf.constant_initializer(0.1),
+                weights_initializer=trunc_normal(0.04),
+                weights_regularizer=slim.l2_regularizer(weight_decay),
+                activation_fn=tf.nn.relu) as sc:
+            return sc
+
+
+def atrousnet_valid_arg_scope(weight_decay=0.004):
+    """Defines the default argument scope.
+
+    Args:
+        weight_decay: The weight decay to use for regularizing the model.
+    Returns:
+        An `arg_scope` to use for the inception v3 model.
+    """
+    with slim.arg_scope(
+            [slim.conv2d],
+            weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),
+            weights_regularizer=slim.l2_regularizer(weight_decay),
+            # weights_regularizer=None,
             activation_fn=tf.nn.relu):
         with slim.arg_scope(
                 [slim.fully_connected],

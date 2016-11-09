@@ -26,12 +26,16 @@ slim = tf.contrib.slim
 
 networks_map = {'cifarnet': cifarnet.cifarnet,
                 'idsianet': idsianet.idsianet,
-                'atrousnet': atrousnet.atrousnet,
+                'atrousnet': atrousnet.atrousnet_valid,
+                'atrousnet_same': atrousnet.atrousnet_same,
+                'atrousnet_valid': atrousnet.atrousnet_valid,
                 }
 
 arg_scopes_map = {'cifarnet': cifarnet.cifarnet_arg_scope,
                   'idsianet': idsianet.idsianet_arg_scope,
-                  'atrousnet': atrousnet.atrousnet_arg_scope,
+                  'atrousnet': atrousnet.atrousnet_valid_arg_scope,
+                  'atrousnet_same': atrousnet.atrousnet_same_arg_scope,
+                  'atrousnet_valid': atrousnet.atrousnet_valid_arg_scope,
                   }
 
 

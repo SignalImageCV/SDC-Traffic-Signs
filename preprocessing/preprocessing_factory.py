@@ -44,6 +44,8 @@ def get_preprocessing(name, is_training=False):
         'cifarnet': gtsrb_32_preprocessing,
         'idsianet': gtsrb_32_preprocessing,
         'atrousnet': gtsrb_32_preprocessing,
+        'atrousnet_same': gtsrb_32_preprocessing,
+        'atrousnet_valid': gtsrb_32_preprocessing,
     }
 
     if name not in preprocessing_fn_map:
