@@ -74,7 +74,8 @@ def atrousnet(images, num_classes=43, is_training=False,
         end_points['conv4'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
 
-        net = slim.conv2d(net, 512, [1, 1], scope='conv5')
+        net = slim.conv2d(net, 512, [1, 1], scope='conv5',
+                          normalizer_fn=None)
         end_points['conv5'] = net
         net = slim.dropout(net, dropout_keep_prob,
                            is_training=is_training,
@@ -84,6 +85,7 @@ def atrousnet(images, num_classes=43, is_training=False,
                           weights_initializer=trunc_normal(1 / 512.0),
                           weights_regularizer=None,
                           activation_fn=None,
+                          normalizer_fn=None,
                           scope='conv6')
         end_points['conv6'] = net
 
@@ -182,6 +184,8 @@ def atrousnet_arg_scope(weight_decay=0.004):
             weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),
             weights_regularizer=slim.l2_regularizer(weight_decay),
             # weights_regularizer=None,
+            normalizer_fn=slim.batch_norm,
+            normalizer_params=batch_norm_params,
             activation_fn=tf.nn.relu):
         with slim.arg_scope(
                 [slim.fully_connected],
