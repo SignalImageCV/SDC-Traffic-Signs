@@ -70,13 +70,13 @@ def conv2d_tiny(inputs,
                              # normalizer_params=None,
                              weights_initializer=initializers.xavier_initializer_conv2d(),
                              weights_regularizer=weights_regularizer,
-                             # biases_initializer=None,
-                             biases_initializer=init_ops.zeros_initializer,
+                             biases_initializer=None,
+                             # biases_initializer=init_ops.zeros_initializer,
                              biases_regularizer=biases_regularizer,
                              scope='conv_2x2')
 
         # Paddings + second convolution.
-        paddings = [[rate, rate], [rate, rate]]
+        paddings = [[0, 0], [rate, rate], [rate, rate], [0, 0]]
         output = tf.pad(output, paddings, mode='CONSTANT')
         output = slim.conv2d(output, num_outputs, [2, 2], rate=rate,
                              padding='VALID',
@@ -90,7 +90,7 @@ def conv2d_tiny(inputs,
                              # biases_initializer=None,
                              biases_initializer=init_ops.zeros_initializer,
                              biases_regularizer=biases_regularizer,
-                             scope='conv_2x2')
+                             scope='conv_concat')
         return output
 
         # # Convolution paddings.
