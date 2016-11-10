@@ -28,7 +28,7 @@ trunc_normal = lambda stddev: tf.truncated_normal_initializer(stddev=stddev)
 def atrousnet_same(images, num_classes=43, is_training=False,
                    dropout_keep_prob=0.5,
                    prediction_fn=slim.softmax,
-                   scope='AtrousNetSame'):
+                   scope='CifarNet'):
     """Creates a model using Dilated-Atrous convolutions.
 
     Args:
@@ -60,7 +60,7 @@ def atrousnet_same(images, num_classes=43, is_training=False,
                           weights_regularizer=None,
                           scope='conv2')
         end_points['conv2'] = net
-        net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
+        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
 
         net = slim.conv2d(net, 192, [3, 3], rate=3, padding='SAME',
                           weights_regularizer=None,
@@ -88,6 +88,7 @@ def atrousnet_same(images, num_classes=43, is_training=False,
                           normalizer_fn=None,
                           scope='conv6')
         end_points['conv6'] = net
+        end_points['PredictionsFull'] = tf.nn.softmax(net)
 
         # Global average pooling.
         logits = tf.reduce_mean(net, [1, 2], name='pool7')

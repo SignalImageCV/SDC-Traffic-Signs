@@ -47,9 +47,9 @@ def preprocess_for_train(image,
     tf.image_summary('image', tf.expand_dims(image, 0))
 
     # Transform the image to float if necessary (and rescale to 0-1)
-    if image.dtype != tf.float32:
-        image = tf.image.convert_image_dtype(image, dtype=tf.float32)
-    # image = tf.to_float(image)
+    # if image.dtype != tf.float32:
+    #     image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+    image = tf.to_float(image)
 
     # Randomly crop a [height, width] section of the image.
     if padding > 0:
