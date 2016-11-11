@@ -23,6 +23,7 @@ from nets import tinyconv2d
 
 slim = tf.contrib.slim
 conv2d_tiny = tinyconv2d.conv2d_tiny
+conv2d_tiny_complex = tinyconv2d.conv2d_tiny_complex
 
 
 def trunc_normal(stddev):
@@ -39,28 +40,28 @@ def tinynet(images, num_classes=43, is_training=False,
 
     with tf.variable_scope(scope, 'AtrousNet', [images, num_classes]):
 
-        net = conv2d_tiny(images, 64, rate=1,
+        net = conv2d_tiny_complex(images, 64, rate=1,
                           weights_regularizer=None,
                           scope='conv1')
         end_points['conv1'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
 
-        net = conv2d_tiny(net, 128, rate=2, weights_regularizer=None,
+        net = conv2d_tiny_complex(net, 128, rate=2, weights_regularizer=None,
                           scope='conv2')
         end_points['conv2'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
 
-        net = conv2d_tiny(net, 192, rate=4, weights_regularizer=None,
+        net = conv2d_tiny_complex(net, 256, rate=4, weights_regularizer=None,
                           scope='conv3')
         end_points['conv3'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
 
-        net = conv2d_tiny(net, 256, rate=8, weights_regularizer=None,
+        net = conv2d_tiny_complex(net, 512, rate=8, weights_regularizer=None,
                           scope='conv4')
         end_points['conv4'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
 
-        net = slim.conv2d(net, 512, [1, 1], scope='conv5',
+        net = slim.conv2d(net, 1024, [1, 1], scope='conv5',
                           normalizer_fn=None)
         end_points['conv5'] = net
         net = slim.dropout(net, dropout_keep_prob,
