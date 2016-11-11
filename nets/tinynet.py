@@ -24,6 +24,7 @@ from nets import tinyconv2d
 slim = tf.contrib.slim
 conv2d_tiny = tinyconv2d.conv2d_tiny
 conv2d_tiny_complex = tinyconv2d.conv2d_tiny_complex
+conv2d_pad = tinyconv2d.conv2d_pad
 
 
 def trunc_normal(stddev):
@@ -38,25 +39,23 @@ def tinynet(images, num_classes=43, is_training=False,
     """
     end_points = {}
 
-    with tf.variable_scope(scope, 'AtrousNet', [images, num_classes]):
+    with tf.variable_scope(scope, 'TinyNet', [images, num_classes]):
 
-        net = conv2d_tiny_complex(images, 64, rate=1, weights_regularizer=None,
-                          scope='conv1')
+        net = conv2d_pad(images, 64, rate=1,
+                         weights_regularizer=None, scope='conv1')
         end_points['conv1'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
-
-        net = conv2d_tiny_complex(net, 128, rate=2, weights_regularizer=None,
-                          scope='conv2')
+        net = conv2d_pad(net, 128, rate=2,
+                         weights_regularizer=None, scope='conv2')
         end_points['conv2'] = net
-        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
 
-        net = conv2d_tiny_complex(net, 256, rate=4, weights_regularizer=None,
-                          scope='conv3')
+        net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
+        net = conv2d_pad(net, 256, rate=3,
+                         weights_regularizer=None, scope='conv3')
         end_points['conv3'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
-
-        net = conv2d_tiny_complex(net, 512, rate=8, weights_regularizer=None,
-                          scope='conv4')
+        net = conv2d_pad(net, 512, rate=4,
+                         weights_regularizer=None, scope='conv4')
         end_points['conv4'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
 
@@ -68,7 +67,7 @@ def tinynet(images, num_classes=43, is_training=False,
                            scope='dropout1')
         net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
-                          weights_initializer=trunc_normal(1 / 512.0),
+                          weights_initializer=trunc_normal(1 / 1024.0),
                           weights_regularizer=None,
                           activation_fn=None,
                           normalizer_fn=None,
