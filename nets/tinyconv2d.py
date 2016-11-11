@@ -6,7 +6,6 @@ Downsampling, sub-filters...
 import math
 import numpy as np
 import tensorflow as tf
-slim = tf.contrib.slim
 
 from tensorflow.contrib.framework.python.ops import add_arg_scope
 from tensorflow.contrib.framework.python.ops import variables
@@ -24,6 +23,8 @@ from tensorflow.python.ops import standard_ops
 from tensorflow.python.ops import variable_scope
 from tensorflow.python.training import moving_averages
 
+slim = tf.contrib.slim
+
 
 # ==============================================================================
 # Convolution 2D Padding
@@ -31,12 +32,10 @@ from tensorflow.python.training import moving_averages
 def conv2d_pad(inputs,
                num_outputs,
                kernel_size,
-               stride=1,
-               padding='SAME',
                data_format=None,
                rate=1,
                activation_fn=nn.relu,
-               normalizer_fn=None,
+               normalizer_fn=slim.batch_norm,
                normalizer_params=None,
                weights_initializer=initializers.xavier_initializer(),
                weights_regularizer=None,
@@ -62,7 +61,7 @@ def conv2d_pad(inputs,
                              input_rank)
         conv_dims = input_rank - 2
         kernel_size = utils.n_positive_integers(conv_dims, kernel_size)
-        stride = utils.n_positive_integers(conv_dims, stride)
+        stride = utils.n_positive_integers(conv_dims, 1)
         rate = utils.n_positive_integers(conv_dims, rate)
 
         if data_format is None or data_format.endswith('C'):
@@ -86,27 +85,36 @@ def conv2d_pad(inputs,
                                            regularizer=weights_regularizer,
                                            collections=weights_collections,
                                            trainable=trainable)
+        # Normal convolution with VALID padding.
         outputs = nn.convolution(input=inputs,
                                  filter=weights,
                                  dilation_rate=rate,
                                  strides=stride,
-                                 padding=padding,
+                                 padding='VALID',
                                  data_format=data_format)
+        # Batch normalization.
         if normalizer_fn is not None:
             normalizer_params = normalizer_params or {}
+            normalizer_params['center'] = False
+            normalizer_params['scale'] = False
             outputs = normalizer_fn(outputs, **normalizer_params)
-        else:
-            if biases_initializer is not None:
-                biases_collections = utils.get_variable_collections(
-                        variables_collections, 'biases')
-                biases = variables.model_variable('biases',
-                                                  shape=[num_outputs],
-                                                  dtype=dtype,
-                                                  initializer=biases_initializer,
-                                                  regularizer=biases_regularizer,
-                                                  collections=biases_collections,
-                                                  trainable=trainable)
-                outputs = nn.bias_add(outputs, biases, data_format=data_format)
+
+        # Padding back to original size. TO FIX!!!
+        paddings = [[0, 0], [rate, rate], [rate, rate], [0, 0]]
+        outputs = tf.pad(outputs, paddings, mode='CONSTANT')
+        # Bias.
+        if biases_initializer is not None:
+            biases_collections = utils.get_variable_collections(
+                    variables_collections, 'biases')
+            biases = variables.model_variable('biases',
+                                              shape=[num_outputs],
+                                              dtype=dtype,
+                                              initializer=biases_initializer,
+                                              regularizer=biases_regularizer,
+                                              collections=biases_collections,
+                                              trainable=trainable)
+            outputs = nn.bias_add(outputs, biases, data_format=data_format)
+        # Non Linear Activation.
         if activation_fn is not None:
             outputs = activation_fn(outputs)
         return utils.collect_named_outputs(outputs_collections,

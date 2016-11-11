@@ -40,8 +40,7 @@ def tinynet(images, num_classes=43, is_training=False,
 
     with tf.variable_scope(scope, 'AtrousNet', [images, num_classes]):
 
-        net = conv2d_tiny_complex(images, 64, rate=1,
-                          weights_regularizer=None,
+        net = conv2d_tiny_complex(images, 64, rate=1, weights_regularizer=None,
                           scope='conv1')
         end_points['conv1'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
@@ -95,6 +94,8 @@ def tinynet_arg_scope(weight_decay=0.004):
         An `arg_scope` to use for the inception v3 model.
     """
     batch_norm_params = {
+        'center': False,
+        'scale': False,
         # Decay for the moving averages.
         'decay': 0.9997,
         # epsilon to prevent 0s in variance.
