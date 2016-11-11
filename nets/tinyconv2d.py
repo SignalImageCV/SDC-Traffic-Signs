@@ -48,36 +48,19 @@ def conv2d_pad(inputs,
                scope=None):
     """Convolution 2D with correct padding.
     """
-    if data_format not in [None, 'NWC', 'NCW', 'NHWC', 'NCHW', 'NDHWC']:
-        raise ValueError('Invalid data_format: %r' % (data_format,))
-    with variable_scope.variable_scope(scope, 'Conv', [inputs], reuse=reuse) as sc:
+    with variable_scope.variable_scope(scope, 'Conv', [inputs],
+                                       reuse=reuse) as sc:
         inputs = ops.convert_to_tensor(inputs)
         dtype = inputs.dtype.base_dtype
-        input_rank = inputs.get_shape().ndims
-        if input_rank is None:
-            raise ValueError('Rank of inputs must be known')
-        if input_rank < 3 or input_rank > 5:
-            raise ValueError('Rank of inputs is %d, which is not >= 3 and <= 5' %
-                             input_rank)
-        conv_dims = input_rank - 2
-        kernel_size = utils.n_positive_integers(conv_dims, kernel_size)
-        stride = utils.n_positive_integers(conv_dims, 1)
-        rate = utils.n_positive_integers(conv_dims, rate)
-
-        if data_format is None or data_format.endswith('C'):
-            num_input_channels = inputs.get_shape()[input_rank - 1].value
-        elif data_format.startswith('NC'):
-            num_input_channels = inputs.get_shape()[1].value
-        else:
-            raise ValueError('Invalid data_format')
-
-        if num_input_channels is None:
-            raise ValueError('Number of in_channels must be known.')
-
-        weights_shape = (
-                list(kernel_size) + [num_input_channels, num_outputs])
-        weights_collections = utils.get_variable_collections(variables_collections,
-                                                             'weights')
+        kernel_h, kernel_w = utils.two_element_tuple(kernel_size)
+        stride_h, stride_w = utils.two_element_tuple(1)
+        if rate > 1 and (stride_h > 1 or stride_w > 1):
+            raise ValueError('Only one of rate or stride can be larger than one')
+        num_filters_in = utils.last_dimension(inputs.get_shape(), min_rank=4)
+        weights_shape = [kernel_h, kernel_w,
+                         num_filters_in, num_outputs]
+        weights_collections = utils.get_variable_collections(
+            variables_collections, 'weights')
         weights = variables.model_variable('weights',
                                            shape=weights_shape,
                                            dtype=dtype,
@@ -86,12 +69,11 @@ def conv2d_pad(inputs,
                                            collections=weights_collections,
                                            trainable=trainable)
         # Normal convolution with VALID padding.
-        outputs = nn.convolution(input=inputs,
-                                 filter=weights,
-                                 dilation_rate=rate,
-                                 strides=stride,
-                                 padding='VALID',
-                                 data_format=data_format)
+        if rate > 1:
+            outputs = nn.atrous_conv2d(inputs, weights, rate, padding='VALID')
+        else:
+            outputs = nn.conv2d(inputs, weights, [1, stride_h, stride_w, 1],
+                                padding='VALID')
         # Batch normalization.
         if normalizer_fn is not None:
             normalizer_params = normalizer_params or {}
