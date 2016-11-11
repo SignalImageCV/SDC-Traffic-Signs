@@ -42,20 +42,24 @@ def tinynet(images, num_classes=43, is_training=False,
     with tf.variable_scope(scope, 'TinyNet', [images, num_classes]):
 
         net = conv2d_pad(images, 64, [3, 3], rate=1,
-                         weights_regularizer=None, scope='conv1')
+                         # weights_regularizer=None,
+                         scope='conv1')
         end_points['conv1'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
         net = conv2d_pad(net, 128, [3, 3], rate=2,
-                         weights_regularizer=None, scope='conv2')
+                         # weights_regularizer=None,
+                         scope='conv2')
         end_points['conv2'] = net
 
         net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
         net = conv2d_pad(net, 256, [3, 3], rate=3,
-                         weights_regularizer=None, scope='conv3')
+                         # weights_regularizer=None,
+                         scope='conv3')
         end_points['conv3'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
         net = conv2d_pad(net, 512, [3, 3], rate=4,
-                         weights_regularizer=None, scope='conv4')
+                         # weights_regularizer=None,
+                         scope='conv4')
         end_points['conv4'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
 
@@ -74,6 +78,9 @@ def tinynet(images, num_classes=43, is_training=False,
                           scope='conv6')
         end_points['conv6'] = net
         end_points['PredictionsFull'] = tf.nn.softmax(net)
+        net = slim.dropout(net, dropout_keep_prob,
+                           is_training=is_training,
+                           scope='dropout1')
 
         # Global average pooling.
         logits = tf.reduce_mean(net, [1, 2], name='pool7')
@@ -104,8 +111,8 @@ def tinynet_arg_scope(weight_decay=0.004):
     }
     with slim.arg_scope(
             [slim.conv2d, tinyconv2d.conv2d_tiny],
-            weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),
-            weights_regularizer=slim.l2_regularizer(weight_decay),
+            # weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),
+            weights_regularizer=slim.l1_regularizer(weight_decay),
             # weights_regularizer=None,
             normalizer_fn=slim.batch_norm,
             normalizer_params=batch_norm_params,

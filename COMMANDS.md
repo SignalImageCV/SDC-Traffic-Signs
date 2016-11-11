@@ -133,7 +133,7 @@ python train_image_classifier.py \
     --num_epochs_per_decay=1. \
     --learning_rate_decay_factor=0.9 \
     --weight_decay=0.00001 \
-    --batch_size=128
+    --batch_size=256
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
 CHECKPOINT_FILE=logs
