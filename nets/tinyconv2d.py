@@ -27,12 +27,55 @@ slim = tf.contrib.slim
 
 
 # ==============================================================================
+# Convolution 2D Multi-Scale
+# ==============================================================================
+def conv2d_multi_scale(inputs,
+                       num_outputs,
+                       kernel_size,
+                       rates,
+                       activation_fn=nn.relu,
+                       normalizer_fn=slim.batch_norm,
+                       normalizer_params=None,
+                       weights_initializer=initializers.xavier_initializer(),
+                       weights_regularizer=None,
+                       biases_initializer=init_ops.zeros_initializer,
+                       biases_regularizer=None,
+                       reuse=None,
+                       variables_collections=None,
+                       outputs_collections=None,
+                       trainable=True,
+                       scope=None):
+    """Multi-scale...
+    """
+    out_list = []
+    for rate in rates:
+        output = conv2d_pad(inputs,
+                            num_outputs=num_outputs,
+                            kernel_size=kernel_size,
+                            rate=rate,
+                            activation_fn=activation_fn,
+                            normalizer_fn=normalizer_fn,
+                            normalizer_params=normalizer_fn,
+                            weights_initializer=weights_initializer,
+                            weights_regularizer=weights_regularizer,
+                            biases_initializer=biases_initializer,
+                            biases_regularizer=biases_regularizer,
+                            reuse=reuse,
+                            variables_collections=variables_collections,
+                            outputs_collections=outputs_collections,
+                            trainable=trainable,
+                            scope='Conv_rate_%i' % rate)
+        out_list.append(output)
+    outputs = tf.concat(3, out_list)
+    return outputs
+
+
+# ==============================================================================
 # Convolution 2D Padding
 # ==============================================================================
 def conv2d_pad(inputs,
                num_outputs,
                kernel_size,
-               data_format=None,
                rate=1,
                activation_fn=nn.relu,
                normalizer_fn=slim.batch_norm,
