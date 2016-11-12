@@ -42,43 +42,43 @@ def tinynet(images, num_classes=43, is_training=False,
     with tf.variable_scope(scope, 'TinyNet', [images, num_classes]):
 
         net = conv2d_pad(images, 64, [3, 3], rate=1,
-                         # weights_regularizer=None,
+                         weights_regularizer=None,
                          scope='conv1')
         end_points['conv1'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
-        net = conv2d_pad(net, 128, [3, 3], rate=2,
-                         # weights_regularizer=None,
+        net = conv2d_pad(net, 96, [3, 3], rate=2,
+                         weights_regularizer=None,
                          scope='conv2')
         end_points['conv2'] = net
 
         net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
-        net = conv2d_pad(net, 256, [3, 3], rate=3,
-                         # weights_regularizer=None,
+        net = conv2d_pad(net, 128, [3, 3], rate=3,
+                         weights_regularizer=None,
                          scope='conv3')
         end_points['conv3'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
-        net = conv2d_pad(net, 512, [3, 3], rate=4,
-                         # weights_regularizer=None,
+        net = conv2d_pad(net, 192, [3, 3], rate=4,
+                         weights_regularizer=None,
                          scope='conv4')
         end_points['conv4'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
 
-        net = slim.conv2d(net, 1024, [1, 1], scope='conv5',
+        net = slim.conv2d(net, 256, [1, 1], scope='conv5',
                           normalizer_fn=None)
         end_points['conv5'] = net
-        net = slim.dropout(net, dropout_keep_prob,
+        net = slim.dropout(net, 0.4,
                            is_training=is_training,
                            scope='dropout1')
         net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
-                          weights_initializer=trunc_normal(1 / 1024.0),
+                          weights_initializer=trunc_normal(1 / 256.0),
                           weights_regularizer=None,
                           activation_fn=None,
                           normalizer_fn=None,
                           scope='conv6')
         end_points['conv6'] = net
         end_points['PredictionsFull'] = tf.nn.softmax(net)
-        net = slim.dropout(net, dropout_keep_prob,
+        net = slim.dropout(net, 0.25,
                            is_training=is_training,
                            scope='dropout1')
 
@@ -100,7 +100,7 @@ def tinynet_arg_scope(weight_decay=0.004):
         An `arg_scope` to use for the inception v3 model.
     """
     batch_norm_params = {
-        'center': False,
+        # 'center': False,
         'scale': False,
         # Decay for the moving averages.
         'decay': 0.9997,

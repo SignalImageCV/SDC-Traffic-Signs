@@ -139,6 +139,7 @@ def conv2d_pad(inputs,
                                               collections=biases_collections,
                                               trainable=trainable)
             outputs = nn.bias_add(outputs, biases)
+
         # Non Linear Activation.
         if activation_fn is not None:
             outputs = activation_fn(outputs)

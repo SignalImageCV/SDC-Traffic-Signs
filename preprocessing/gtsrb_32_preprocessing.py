@@ -22,7 +22,7 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-_PADDING = 4
+_PADDING = 12
 
 slim = tf.contrib.slim
 
@@ -55,7 +55,7 @@ def preprocess_for_train(image,
     if padding > 0:
         image = tf.pad(image,
                        [[padding, padding], [padding, padding], [0, 0]],
-                       mode='REFLECT')
+                       mode='CONSTANT')
     distorted_image = tf.random_crop(image,
                                      [output_height, output_width, 3])
 
