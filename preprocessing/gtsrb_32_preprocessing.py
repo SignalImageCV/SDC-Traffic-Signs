@@ -22,11 +22,24 @@ from __future__ import print_function
 
 import tensorflow as tf
 from tensorflow.python.ops import control_flow_ops
-import random
 
-_PADDING = 8
+import random
+import numpy as np
+
+_PADDING = 5
 
 slim = tf.contrib.slim
+
+
+def gaussian_mask(output_height, output_width, padding=16., scale=5.0):
+    grid_x, grid_y = np.mgrid[0:(output_height+padding),
+                              0:(output_width+padding)]
+    grid_x = grid_x - (output_height + padding) / 2.0
+    grid_y = grid_y - (output_width + padding) / 2.0
+
+    mask = 1. - np.exp(-(grid_x / scale)**2 - (grid_y / scale)**2)
+    mask = mask.astype(np.float32)
+    return np.dstack([mask, mask, mask])
 
 
 def distort_color(image, color_ordering=0, fast_mode=True, scope=None):
@@ -85,38 +98,6 @@ def distort_color(image, color_ordering=0, fast_mode=True, scope=None):
                     }
         image = tf.case(fn_pairs, distort_ordering0, exclusive=False, name='case')
 
-    # with tf.name_scope(scope, 'distort_color', [image]):
-    #     if fast_mode:
-    #         if color_ordering == 0:
-    #             image = tf.image.random_brightness(image, max_delta=32. / 255.)
-    #             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-    #         else:
-    #             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-    #             image = tf.image.random_brightness(image, max_delta=32. / 255.)
-    #     else:
-    #         if color_ordering == 0:
-    #             image = tf.image.random_brightness(image, max_delta=32. / 255.)
-    #             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-    #             image = tf.image.random_hue(image, max_delta=0.2)
-    #             image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
-    #         elif color_ordering == 1:
-    #             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-    #             image = tf.image.random_brightness(image, max_delta=32. / 255.)
-    #             image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
-    #             image = tf.image.random_hue(image, max_delta=0.2)
-    #         elif color_ordering == 2:
-    #             image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
-    #             image = tf.image.random_hue(image, max_delta=0.2)
-    #             image = tf.image.random_brightness(image, max_delta=32. / 255.)
-    #             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-    #         elif color_ordering == 3:
-    #             image = tf.image.random_hue(image, max_delta=0.2)
-    #             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
-    #             image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
-    #             image = tf.image.random_brightness(image, max_delta=32. / 255.)
-    #         else:
-    #             raise ValueError('color_ordering must be in [0, 3]')
-
         # The random_* ops do not necessarily clamp.
         return tf.clip_by_value(image, 0.0, 1.0)
 
@@ -167,6 +148,12 @@ def preprocess_for_train(image,
 
     # Whitened image.
     whitened_image = tf.image.per_image_whitening(distorted_image)
+
+    # Random gaussian.
+    mask = gaussian_mask(output_height, output_width, padding=12., scale=5.0)
+    mask = tf.random_crop(mask, [output_height, output_width, 3])
+    whitened_image = tf.mul(whitened_image, mask)
+
     # Randomly crop a [height, width] section of the image.
     if padding > 0:
         whitened_image = tf.pad(whitened_image,
