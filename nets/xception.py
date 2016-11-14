@@ -49,22 +49,29 @@ def xception(images, num_classes=43, is_training=False,
         end_points['conv2'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
 
-        # Separable convolutions for the next layers!
-        net = slim.separable_convolution2d(net, 128, [3, 3], 1,
-                                           scope='conv_sep1')
-        end_points['conv_sep1'] = net
-        net = slim.separable_convolution2d(net, 256, [3, 3], 1,
-                                           scope='conv_sep2')
-        end_points['conv_sep2'] = net
-        net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
+        net = slim.conv2d(images, 128, [3, 3], padding='VALID',
+                          scope='conv3')
+        end_points['conv3'] = net
+        net = slim.conv2d(net, 256, [3, 3], padding='VALID',
+                          scope='conv4')
+        end_points['conv4'] = net
 
-        # Second stack
-        net = slim.separable_convolution2d(net, 512, [3, 3], 1,
-                                           scope='conv_sep3')
-        end_points['conv_sep3'] = net
-        net = slim.separable_convolution2d(net, 512, [3, 3], 1,
-                                           scope='conv_sep4')
-        end_points['conv_sep4'] = net
+        # # Separable convolutions for the next layers!
+        # net = slim.separable_convolution2d(net, 128, [3, 3], 1,
+        #                                    scope='conv_sep1')
+        # end_points['conv_sep1'] = net
+        # net = slim.separable_convolution2d(net, 256, [3, 3], 1,
+        #                                    scope='conv_sep2')
+        # end_points['conv_sep2'] = net
+        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
+
+        # # Second stack
+        # net = slim.separable_convolution2d(net, 512, [3, 3], 1,
+        #                                    scope='conv_sep3')
+        # end_points['conv_sep3'] = net
+        # net = slim.separable_convolution2d(net, 512, [3, 3], 1,
+        #                                    scope='conv_sep4')
+        # end_points['conv_sep4'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
 
         # Fully connected convolution + Logits.

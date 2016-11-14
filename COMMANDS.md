@@ -178,4 +178,4 @@ python eval_image_classifier.py \
     --dataset_dir=${DATASET_DIR} \
     --dataset_name=gtsrb_32 \
     --dataset_split_name=test \
-    --model_name=tinynet
+    --model_name=xception
