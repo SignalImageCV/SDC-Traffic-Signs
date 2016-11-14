@@ -46,13 +46,13 @@ def tinynet(images, num_classes=43, is_training=False,
                          scope='conv1_1')
         end_points['conv1'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
-        net = conv2d_pad(net, 96, [3, 3], rate=2,
+        net = conv2d_pad(net, 128, [3, 3], rate=2,
                          # weights_regularizer=None,
                          scope='conv1_2')
         end_points['conv2'] = net
 
         net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
-        net = conv2d_pad(net, 128, [3, 3], rate=3,
+        net = conv2d_pad(net, 192, [3, 3], rate=3,
                          # weights_regularizer=None,
                          scope='conv2_1')
         end_points['conv3'] = net
@@ -62,20 +62,20 @@ def tinynet(images, num_classes=43, is_training=False,
                          scope='conv2_2')
         end_points['conv4'] = net
 
-        net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
-        net = conv2d_pad(net, 256, [3, 3], rate=3,
-                         # weights_regularizer=None,
-                         scope='conv3_1')
-        end_points['conv3'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
-        net = conv2d_pad(net, 256, [3, 3], rate=2,
-                         # weights_regularizer=None,
-                         scope='conv3_2')
-        end_points['conv4'] = net
+        # net = conv2d_pad(net, 256, [3, 3], rate=3,
+        #                  # weights_regularizer=None,
+        #                  scope='conv3_1')
+        # end_points['conv3'] = net
+        # # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
+        # net = conv2d_pad(net, 256, [3, 3], rate=2,
+        #                  # weights_regularizer=None,
+        #                  scope='conv3_2')
+        # end_points['conv4'] = net
 
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
 
-        net = slim.conv2d(net, 256, [1, 1], scope='conv5',
+        net = slim.conv2d(net, 512, [1, 1], scope='conv5',
                           normalizer_fn=None)
         end_points['conv5'] = net
         net = slim.dropout(net, 0.5,
@@ -83,7 +83,7 @@ def tinynet(images, num_classes=43, is_training=False,
                            scope='dropout1')
         net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
-                          weights_initializer=trunc_normal(1 / 256.0),
+                          weights_initializer=trunc_normal(1 / 512.0),
                           weights_regularizer=None,
                           activation_fn=None,
                           normalizer_fn=None,
