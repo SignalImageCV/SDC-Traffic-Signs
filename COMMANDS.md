@@ -88,15 +88,15 @@ python train_image_classifier.py \
     --save_summaries_secs=60 \
     --save_interval_secs=60 \
     --labels_offset=1 \
-    --model_name=atrousnet \
+    --model_name=atrousnet_valid \
     --optimizer=rmsprop \
     --rmsprop_momentum=0.9 \
     --rmsprop_decay=0.9 \
     --opt_epsilon=1.0 \
-    --learning_rate=0.2 \
+    --learning_rate=0.1 \
     --num_epochs_per_decay=1. \
     --learning_rate_decay_factor=0.9 \
-    --weight_decay=0.0000005 \
+    --weight_decay=0.00005 \
     --batch_size=256
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32

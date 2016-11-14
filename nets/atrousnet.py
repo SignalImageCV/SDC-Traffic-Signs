@@ -206,11 +206,21 @@ def atrousnet_valid_arg_scope(weight_decay=0.004):
     Returns:
         An `arg_scope` to use for the inception v3 model.
     """
+    batch_norm_params = {
+        # Decay for the moving averages.
+        'decay': 0.9997,
+        # epsilon to prevent 0s in variance.
+        'epsilon': 0.001,
+        # collection containing update_ops.
+        'updates_collections': tf.GraphKeys.UPDATE_OPS,
+    }
     with slim.arg_scope(
             [slim.conv2d],
             weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),
             weights_regularizer=slim.l2_regularizer(weight_decay),
             # weights_regularizer=None,
+            normalizer_fn=slim.batch_norm,
+            normalizer_params=batch_norm_params,
             activation_fn=tf.nn.relu):
         with slim.arg_scope(
                 [slim.fully_connected],
