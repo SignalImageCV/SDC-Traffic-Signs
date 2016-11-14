@@ -47,7 +47,7 @@ def xception(images, num_classes=43, is_training=False,
         net = slim.conv2d(net, 64, [3, 3], padding='VALID',
                           scope='conv2')
         end_points['conv2'] = net
-        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
+        net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
 
         net = slim.conv2d(net, 128, [3, 3], padding='VALID',
                           scope='conv3')
@@ -114,7 +114,7 @@ def xception_arg_scope(weight_decay=0.004):
         # Decay for the moving averages.
         'decay': 0.9997,
         # epsilon to prevent 0s in variance.
-        'epsilon': 0.001,
+        'epsilon': 0.01,
         # collection containing update_ops.
         'updates_collections': tf.GraphKeys.UPDATE_OPS,
     }
