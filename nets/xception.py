@@ -49,7 +49,7 @@ def xception(images, num_classes=43, is_training=False,
         end_points['conv2'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool1', padding='SAME')
 
-        net = slim.conv2d(images, 128, [3, 3], padding='VALID',
+        net = slim.conv2d(net, 128, [3, 3], padding='VALID',
                           scope='conv3')
         end_points['conv3'] = net
         net = slim.conv2d(net, 256, [3, 3], padding='VALID',
