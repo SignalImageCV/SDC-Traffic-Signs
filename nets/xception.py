@@ -23,6 +23,10 @@ import tensorflow as tf
 slim = tf.contrib.slim
 
 
+def trunc_normal(stddev):
+    return tf.truncated_normal_initializer(stddev=stddev)
+
+
 # ==============================================================================
 # Xception model.
 # ==============================================================================
@@ -84,7 +88,7 @@ def xception(images, num_classes=43, is_training=False,
                            scope='dropout1')
         net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
-                          # weights_initializer=trunc_normal(1 / 512.0),
+                          weights_initializer=trunc_normal(1 / 512.0),
                           weights_regularizer=None,
                           activation_fn=None,
                           scope='conv_logits')
