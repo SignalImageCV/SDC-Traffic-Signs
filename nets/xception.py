@@ -65,12 +65,13 @@ def xception(images, num_classes=43, is_training=False,
         net = slim.separable_convolution2d(net, 512, [3, 3], 1,
                                            scope='conv_sep4')
         end_points['conv_sep4'] = net
-        net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
+        # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
 
         # Fully connected convolution + Logits.
-        # net = slim.conv2d(net, 512, [1, 1],
-        #                   scope='conv_fc')
-        # end_points['conv_fc'] = net
+        net = slim.conv2d(net, 512, [1, 1],
+                          normalizer_fn=None,
+                          scope='conv_fc')
+        end_points['conv_fc'] = net
         net = slim.dropout(net, dropout_keep_prob,
                            is_training=is_training,
                            scope='dropout1')
