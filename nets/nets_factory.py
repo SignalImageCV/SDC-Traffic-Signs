@@ -22,6 +22,7 @@ from nets import cifarnet
 from nets import atrousnet
 from nets import idsianet
 from nets import tinynet
+from nets import xception
 
 slim = tf.contrib.slim
 
@@ -31,6 +32,7 @@ networks_map = {'cifarnet': cifarnet.cifarnet,
                 'atrousnet_same': atrousnet.atrousnet_same,
                 'atrousnet_valid': atrousnet.atrousnet_valid,
                 'tinynet': tinynet.tinynet,
+                'xception': xception.xception,
                 }
 
 arg_scopes_map = {'cifarnet': cifarnet.cifarnet_arg_scope,
@@ -39,6 +41,7 @@ arg_scopes_map = {'cifarnet': cifarnet.cifarnet_arg_scope,
                   'atrousnet_same': atrousnet.atrousnet_same_arg_scope,
                   'atrousnet_valid': atrousnet.atrousnet_valid_arg_scope,
                   'tinynet': tinynet.tinynet_arg_scope,
+                  'xception': xception.xception_arg_scope,
                   }
 
 

@@ -47,6 +47,7 @@ def get_preprocessing(name, is_training=False):
         'atrousnet_same': gtsrb_32_preprocessing,
         'atrousnet_valid': gtsrb_32_preprocessing,
         'tinynet': gtsrb_32_preprocessing,
+        'xception': gtsrb_32_preprocessing,
     }
 
     if name not in preprocessing_fn_map:
