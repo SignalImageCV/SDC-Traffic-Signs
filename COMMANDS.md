@@ -130,10 +130,10 @@ python train_image_classifier.py \
     --rmsprop_decay=0.9 \
     --opt_epsilon=1.0 \
     --learning_rate=1.0 \
-    --num_epochs_per_decay=0.2 \
+    --num_epochs_per_decay=0.1 \
     --learning_rate_decay_factor=0.9 \
     --weight_decay=0.000005 \
-    --batch_size=32
+    --batch_size=64
 
 DATASET_DIR=../traffic-signs-data/GTSRB_size32
 CHECKPOINT_FILE=logs
