@@ -157,7 +157,7 @@ def atrousnet_valid(images, num_classes=43, is_training=False,
         net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
                           weights_initializer=trunc_normal(1 / 512.0),
-                          weights_regularizer=None,
+                          # weights_regularizer=None,
                           activation_fn=None,
                           normalizer_fn=None,
                           scope='conv6')
