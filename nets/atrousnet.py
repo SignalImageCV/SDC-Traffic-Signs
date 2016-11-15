@@ -125,23 +125,23 @@ def atrousnet_valid(images, num_classes=43, is_training=False,
     with tf.variable_scope(scope, 'AtrousNet', [images, num_classes]):
 
         net = slim.conv2d(images, 64, [3, 3], padding='VALID',
-                          # weights_regularizer=None,
+                          weights_regularizer=None,
                           scope='conv1')
         end_points['conv1'] = net
         net = slim.conv2d(net, 128, [3, 3], rate=2, padding='VALID',
-                          # weights_regularizer=None,
+                          weights_regularizer=None,
                           scope='conv2')
         end_points['conv2'] = net
         net = slim.max_pool2d(net, [3, 3], 1, scope='pool2', padding='SAME')
 
         net = slim.conv2d(net, 192, [3, 3], rate=3, padding='VALID',
-                          # weights_regularizer=None,
+                          weights_regularizer=None,
                           scope='conv3')
         end_points['conv3'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool3', padding='SAME')
 
         net = slim.conv2d(net, 256, [3, 3], rate=4, padding='VALID',
-                          # weights_regularizer=None,
+                          weights_regularizer=None,
                           scope='conv4')
         end_points['conv4'] = net
         # net = slim.max_pool2d(net, [3, 3], 1, scope='pool4', padding='SAME')
@@ -151,13 +151,13 @@ def atrousnet_valid(images, num_classes=43, is_training=False,
                           normalizer_fn=None,
                           scope='conv5')
         end_points['conv5'] = net
-        # net = slim.dropout(net, dropout_keep_prob,
-        #                    is_training=is_training,
-        #                    scope='dropout1')
+        net = slim.dropout(net, dropout_keep_prob,
+                           is_training=is_training,
+                           scope='dropout1')
         net = slim.conv2d(net, num_classes+1, [1, 1],
                           biases_initializer=tf.zeros_initializer,
                           weights_initializer=trunc_normal(1 / 512.0),
-                          # weights_regularizer=None,
+                          weights_regularizer=None,
                           activation_fn=None,
                           normalizer_fn=None,
                           scope='conv6')
@@ -225,11 +225,11 @@ def atrousnet_valid_arg_scope(weight_decay=0.004):
     }
     with slim.arg_scope(
             [slim.conv2d],
-            # weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),
+            weights_initializer=tf.uniform_unit_scaling_initializer(factor=1.43),
             weights_regularizer=slim.l2_regularizer(weight_decay),
             # weights_regularizer=None,
-            weights_initializer=tf.truncated_normal_initializer(stddev=5e-2),
-            normalizer_fn=slim.batch_norm,
-            normalizer_params=batch_norm_params,
+            # weights_initializer=tf.truncated_normal_initializer(stddev=5e-2),
+            # normalizer_fn=slim.batch_norm,
+            # normalizer_params=batch_norm_params,
             activation_fn=tf.nn.relu) as sc:
         return sc
