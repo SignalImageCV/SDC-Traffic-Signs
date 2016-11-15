@@ -150,7 +150,7 @@ def preprocess_for_train(image,
     whitened_image = tf.image.per_image_whitening(distorted_image)
 
     # Random gaussian.
-    mask = gaussian_mask(output_height, output_width, padding=12., scale=10.0)
+    mask = gaussian_mask(output_height, output_width, padding=16., scale=5.0)
     random_mask = tf.random_crop(mask, [output_height, output_width, 3])
     whitened_image = tf.mul(whitened_image, random_mask)
 
