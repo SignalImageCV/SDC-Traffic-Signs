@@ -436,6 +436,8 @@ def main(_):
             optimizer = _configure_optimizer(learning_rate)
             summaries.add(tf.scalar_summary('learning_rate', learning_rate,
                                             name='learning_rate'))
+            summaries.add(tf.scalar_summary('batch_size', FLAGS.batch_size,
+                                            name='batch_size'))
 
         if FLAGS.moving_average_decay:
             # Update ops executed locally by trainer.
