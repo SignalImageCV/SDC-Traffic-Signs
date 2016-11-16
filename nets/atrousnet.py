@@ -94,17 +94,27 @@ def atrousnet_same(images, num_classes=43, is_training=False,
                                biases_initializer=tf.zeros_initializer,
                                weights_initializer=trunc_normal(1 / 512.0),
                                # weights_regularizer=None,
-                               # activation_fn=None,
+                               activation_fn=None,
                                normalizer_fn=None,
                                scope='conv_back')
+        net_back = tf.nn.elu(net_back) + 1
         end_points['BackNet'] = net_back
 
+        # Apply filteting to logits output.
+        # Brings more weights on logits with proper background.
         net_back = tf.concat(3, [net_back] * (num_classes+1))
         net = tf.mul(net, net_back)
+        # Pixel dropout.
+        noise_shape = net.get_shape()
+        noise_shape[3] = 1
+        net = slim.dropout(net, 0.4,
+                           noise_shape=noise_shape,
+                           is_training=is_training,
+                           scope='dropout_pixels')
 
+        # Pixel predictions on the image.
         end_points['PredictionsFull'] = tf.nn.softmax(net)
-
-        # Global average pooling.
+        # Global average pooling of logits.
         logits = tf.reduce_mean(net, [1, 2], name='pool7')
 
         end_points['Logits'] = logits
@@ -236,14 +246,8 @@ def atrousnet_same_arg_scope(weight_decay=0.004):
             # weights_regularizer=None,
             normalizer_fn=slim.batch_norm,
             normalizer_params=batch_norm_params,
-            activation_fn=tf.nn.relu):
-        with slim.arg_scope(
-                [slim.fully_connected],
-                biases_initializer=tf.constant_initializer(0.1),
-                weights_initializer=trunc_normal(0.04),
-                weights_regularizer=slim.l2_regularizer(weight_decay),
-                activation_fn=tf.nn.relu) as sc:
-            return sc
+            activation_fn=tf.nn.relu) as sc:
+        return sc
 
 
 def atrousnet_valid_arg_scope(weight_decay=0.004):
