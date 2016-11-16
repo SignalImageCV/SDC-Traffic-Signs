@@ -130,27 +130,27 @@ def preprocess_for_train(image,
     # Not a good idea for traffic sign!!!
     # distorted_image = tf.image.random_flip_left_right(distorted_image)
     # Random contrast and brightness.
-    # distorted_image = tf.image.random_brightness(image,
-    #                                              max_delta=63. / 255.)
-    # distorted_image = tf.image.random_contrast(distorted_image,
-    #                                            lower=0.2, upper=1.8)
+    distorted_image = tf.image.random_brightness(image,
+                                                 max_delta=63. / 255.)
+    distorted_image = tf.image.random_contrast(distorted_image,
+                                               lower=0.2, upper=1.8)
     # Translate to [-1, 1] interval.
     # distorted_image = tf.sub(distorted_image, 0.5)
     # distorted_image = tf.mul(distorted_image, 2.0)
 
     # Random color distortion.
-    ordering = random.randint(0, 3)
-    # print(ordering)
-    distorted_image = distort_color(image,
-                                    color_ordering=ordering,
-                                    fast_mode=False)
+    # ordering = random.randint(0, 3)
+    # # print(ordering)
+    # distorted_image = distort_color(image,
+    #                                 color_ordering=ordering,
+    #                                 fast_mode=False)
     tf.image_summary('distorted_image', tf.expand_dims(distorted_image, 0))
 
     # Whitened image.
     whitened_image = tf.image.per_image_whitening(distorted_image)
 
     # Random gaussian.
-    mask = gaussian_mask(output_height, output_width, padding=16., scale=10.0)
+    mask = gaussian_mask(output_height, output_width, padding=16., scale=7.0)
     random_mask = tf.random_crop(mask, [output_height, output_width, 3])
     whitened_image = tf.mul(whitened_image, random_mask)
 

@@ -93,7 +93,7 @@ python train_image_classifier.py \
     --rmsprop_momentum=0.9 \
     --rmsprop_decay=0.9 \
     --opt_epsilon=1.0 \
-    --learning_rate=0.1 \
+    --learning_rate=2.0 \
     --num_epochs_per_decay=0.5 \
     --learning_rate_decay_factor=0.9 \
     --weight_decay=0.00001 \
