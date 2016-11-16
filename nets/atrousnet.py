@@ -105,8 +105,8 @@ def atrousnet_same(images, num_classes=43, is_training=False,
         net_back = tf.concat(3, [net_back] * (num_classes+1))
         net = tf.mul(net, net_back)
         # Pixel dropout.
-        noise_shape = net.get_shape()
-        noise_shape[3] = 1
+        net_shape = net.get_shape()
+        noise_shape = tf.pack([net_shape[0], net_shape[1], net_shape[2], 1])
         net = slim.dropout(net, 0.4,
                            noise_shape=noise_shape,
                            is_training=is_training,
