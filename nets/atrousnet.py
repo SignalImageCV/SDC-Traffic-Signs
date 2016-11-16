@@ -165,6 +165,7 @@ def atrousnet_valid(images, num_classes=43, is_training=False,
                           # normalizer_fn=None,
                           scope='conv5')
         end_points['conv5'] = net
+        # Features dropout.
         net = slim.dropout(net, dropout_keep_prob,
                            is_training=is_training,
                            scope='dropout1')
@@ -177,22 +178,33 @@ def atrousnet_valid(images, num_classes=43, is_training=False,
                           scope='conv6')
         end_points['conv6'] = net
 
-        # Background filter...
+        # Background filtering...
         net_back = slim.conv2d(net, 1, [1, 1],
                                biases_initializer=tf.zeros_initializer,
                                weights_initializer=trunc_normal(1 / 512.0),
                                # weights_regularizer=None,
-                               # activation_fn=None,
+                               activation_fn=None,
                                normalizer_fn=None,
                                scope='conv_back')
+        net_back = tf.nn.elu(net_back) + 1
         end_points['BackNet'] = net_back
 
+        # Apply filteting to logits output.
+        # Brings more weights on logits with proper background.
         net_back = tf.concat(3, [net_back] * (num_classes+1))
         net = tf.mul(net, net_back)
 
-        end_points['PredictionsFull'] = tf.nn.softmax(net)
+        # Pixel dropout.
+        noise_shape = net.get_shape()
+        noise_shape[3] = 1
+        net = slim.dropout(net, 0.4,
+                           noise_shape=noise_shape,
+                           is_training=is_training,
+                           scope='dropout_pixels')
 
-        # Global average pooling.
+        # Pixel predictions on the image.
+        end_points['PredictionsFull'] = tf.nn.softmax(net)
+        # Global average pooling of logits.
         logits = tf.reduce_mean(net, [1, 2], name='pool7')
 
         end_points['Logits'] = logits
